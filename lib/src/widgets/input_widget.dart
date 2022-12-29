@@ -454,7 +454,7 @@ class _InputWidgetView
               ],
               onChanged: state.onChanged,
             ),
-          )
+          ),
         ],
       ),
     );

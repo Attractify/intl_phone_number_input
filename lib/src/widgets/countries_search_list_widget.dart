@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl_phone_number_input/src/models/country_model.dart';
 import 'package:intl_phone_number_input/src/utils/test/test_helper.dart';
 import 'package:intl_phone_number_input/src/utils/util.dart';
@@ -12,6 +13,7 @@ class CountrySearchListWidget extends StatefulWidget {
   final bool autoFocus;
   final bool? showFlags;
   final bool? useEmoji;
+  final bool? showCountryCode;
 
   CountrySearchListWidget(
     this.countries,
@@ -21,6 +23,7 @@ class CountrySearchListWidget extends StatefulWidget {
     this.showFlags,
     this.useEmoji,
     this.autoFocus = false,
+    this.showCountryCode,
   });
 
   @override
@@ -51,8 +54,7 @@ class _CountrySearchListWidgetState extends State<CountrySearchListWidget> {
 
   /// Returns [InputDecoration] of the search box
   InputDecoration getSearchBoxDecoration() {
-    return widget.searchBoxDecoration ??
-        InputDecoration(labelText: 'Search by country name or dial code');
+    return widget.searchBoxDecoration ?? InputDecoration(labelText: 'Search');
   }
 
   @override
@@ -91,6 +93,7 @@ class _CountrySearchListWidgetState extends State<CountrySearchListWidget> {
                 country: country,
                 locale: widget.locale,
                 showFlags: widget.showFlags!,
+                showCountryCode: widget.showCountryCode!,
                 useEmoji: widget.useEmoji!,
               );
               // return ListTile(
@@ -136,6 +139,7 @@ class DirectionalCountryListTile extends StatelessWidget {
   final String? locale;
   final bool showFlags;
   final bool useEmoji;
+  final bool? showCountryCode;
 
   const DirectionalCountryListTile({
     Key? key,
@@ -143,30 +147,51 @@ class DirectionalCountryListTile extends StatelessWidget {
     required this.locale,
     required this.showFlags,
     required this.useEmoji,
+    required this.showCountryCode,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      key: Key(TestHelper.countryItemKeyValue(country.alpha2Code)),
-      leading: (showFlags ? _Flag(country: country, useEmoji: useEmoji) : null),
-      title: Align(
-        alignment: AlignmentDirectional.centerStart,
-        child: Text(
-          '${Utils.getCountryName(country, locale)}',
-          textDirection: Directionality.of(context),
-          textAlign: TextAlign.start,
-        ),
-      ),
-      subtitle: Align(
-        alignment: AlignmentDirectional.centerStart,
-        child: Text(
-          '${country.dialCode ?? ''}',
-          textDirection: TextDirection.ltr,
-          textAlign: TextAlign.start,
-        ),
-      ),
+    return InkWell(
       onTap: () => Navigator.of(context).pop(country),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              key: Key(TestHelper.countryItemKeyValue(country.alpha2Code)),
+              children: [
+                Text(
+                  '${Utils.getCountryName(country, locale)}',
+                  style: GoogleFonts.outfit(
+                    textStyle: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                Opacity(
+                  opacity: 0.7,
+                  child: Text(
+                    country.dialCode ?? '',
+                    style: GoogleFonts.outfit(
+                      textStyle: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Divider(
+              thickness: 1,
+              color: Color.fromARGB(40, 255, 255, 255),
+            )
+          ],
+        ),
+      ),
     );
   }
 }
@@ -194,6 +219,23 @@ class _Flag extends StatelessWidget {
                         ),
                       )
                     : SizedBox.shrink(),
+          )
+        : SizedBox.shrink();
+  }
+}
+
+class _CountryCode extends StatelessWidget {
+  final Country? country;
+
+  const _CountryCode({Key? key, this.country}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return country != null
+        ? Container(
+            child: Text(
+              country?.dialCode ?? '',
+            ),
           )
         : SizedBox.shrink();
   }

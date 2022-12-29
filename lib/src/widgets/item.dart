@@ -11,6 +11,7 @@ class Item extends StatelessWidget {
   final bool withCountryNames;
   final double? leadingPadding;
   final bool trailingSpace;
+  final bool? showCountryCode;
 
   const Item({
     Key? key,
@@ -21,6 +22,7 @@ class Item extends StatelessWidget {
     this.withCountryNames = false,
     this.leadingPadding = 12,
     this.trailingSpace = true,
+    this.showCountryCode,
   }) : super(key: key);
 
   @override
@@ -34,15 +36,9 @@ class Item extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          SizedBox(width: leadingPadding),
-          _Flag(
-            country: country,
-            showFlag: showFlag,
-            useEmoji: useEmoji,
-          ),
           SizedBox(width: 12.0),
           Text(
-            '$dialCode',
+            '${country?.alpha2Code} $dialCode',
             textDirection: TextDirection.ltr,
             style: textStyle,
           ),
@@ -77,6 +73,23 @@ class _Flag extends StatelessWidget {
                       return SizedBox.shrink();
                     },
                   ),
+          )
+        : SizedBox.shrink();
+  }
+}
+
+class _CountryCode extends StatelessWidget {
+  final Country? country;
+
+  const _CountryCode({Key? key, this.country}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return country != null
+        ? Container(
+            child: Text(
+              country?.alpha2Code ?? '',
+            ),
           )
         : SizedBox.shrink();
   }
